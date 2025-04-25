@@ -9,7 +9,7 @@ st.cache_data.clear()
 st.set_page_config(page_title="Heart Failure Prediction",page_icon='🚨')
 
 st.title(':red[Heart] Failure Prediction 🫀🏥')
-st.image("heart_beating_0.gif",use_column_width=True)
+st.image("heart_beating_0.gif",use_container_width =True)
 
 sex_list_selection = ['Male','Female']
 ChestPainType_list_selection = ['TA: Typical Angina','ATA: Atypical Angina','NAP: Non-Anginal Pain','ASY: Asymptomatic']
@@ -135,13 +135,13 @@ if b:
        co1 , co2 = st.columns(2)
        with co1:
           st.image('https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExbWU2eXR0aHo0bHd3NmFtbDRiZzZwOW80c21iazJ3bXdpY2tpbDZxaiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/1Bd7DmRvbhV5UPkoDw/giphy.gif'
-                 ,use_column_width=True)
+                 ,use_container_width =True)
           st.write(f"# Prediction Probability: {patient}")
           st.subheader(":red[*Heart Patient*]")
 
        with co2:
             st.image('https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExd3d5aHB3eW1leDgxMG5wNG4zM3hhZXhpbm5mYWJtOWkzNWpoamZsMCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/yeUxljCJjH1rW/giphy.gif'
-                     ,use_column_width=True)
+                     ,use_container_width =True)
             st.write(f"# Prediction Probability: {no_patient}")
             st.subheader(":green[*No Heart Patient*]")
 
