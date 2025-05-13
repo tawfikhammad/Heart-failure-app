@@ -2,14 +2,16 @@ import joblib
 import pandas as pd
 import streamlit as st
 
-model = joblib.load('rf.sav')
+@st.cache_data(show_spinner=False)
+def load_model(path: str):
+    return joblib.load(path)
 
-st.cache_data.clear()
+model = load_model('rf_pipeline.sav')
 
 st.set_page_config(page_title="Heart Failure Prediction",page_icon='🚨')
 
 st.title(':red[Heart] Failure Prediction 🫀🏥')
-st.image("heart_beating_0.gif",use_container_width =True)
+st.image("heart_beating_0.gif",use_column_width =True)
 
 sex_list_selection = ['Male','Female']
 ChestPainType_list_selection = ['TA: Typical Angina','ATA: Atypical Angina','NAP: Non-Anginal Pain','ASY: Asymptomatic']
@@ -64,64 +66,34 @@ with st.container(height=1400):
 st.divider()
 st.title("Start Prediction")
 
-b = st.button("Start")
-
-
-sex_to_encode = ['Male','Female']
-encode_sex = [1,0]
-convert_sex = dict(zip(sex_to_encode, encode_sex))
-
-ChestPainType_to_encode = ['TA: Typical Angina','ATA: Atypical Angina','NAP: Non-Anginal Pain','ASY: Asymptomatic']
-encode_ChestPainType = [3,1,2,0]
-convert_ChestPainType = dict(zip(ChestPainType_to_encode, encode_ChestPainType))
-
-FastingBS_to_encode = ['Yes','No']
-encode_FastingBS = [1,0]
-convert_FastingBS = dict(zip(FastingBS_to_encode, encode_FastingBS))
-
-RestingECG_to_encode = ['Normal','ST','LVH']
-encode_RestingECG = [1,2,0]
-convert_RestingECG = dict(zip(RestingECG_to_encode, encode_RestingECG))
-
-ExerciseAngina_to_encode = ['Yes','No']
-encode_ExerciseAngina = [1,0]
-convert_ExerciseAngina = dict(zip(ExerciseAngina_to_encode,encode_ExerciseAngina))
-
-
-ST_Slope_to_encode = ['Up', 'Flat', 'Down']
-encode_ST_Slope = [2, 1, 0]
-convert_ST_Slope = dict(zip(ST_Slope_to_encode,encode_ST_Slope))
-
-											
-try:
- df = pd.DataFrame({
-          'Age':[age],
-          'Sex':convert_sex[sex],
-          'ChestPainType':convert_ChestPainType[ChestPainType],
-          'RestingBP':[RestingBP],
-          'Cholesterol':[Cholesterol],
-          'FastingBS':convert_FastingBS[FastingBS],
-          'RestingECG':convert_RestingECG[RestingECG],
-          'MaxHR':[MaxHR],
-          'ExerciseAngina':convert_ExerciseAngina[ExerciseAngina],
-          'Oldpeak':[Oldpeak],
-          'ST_Slope':convert_ST_Slope[ST_Slope]},index=[0])
-except ValueError:
-    st.error("Please ensure all numerical fields are correctly filled! ❌")
-
-print(df)
+submitted = st.button("Start")
+									
+input_df = pd.DataFrame([{
+    'Age':              age,
+    'Sex':              sex,
+    'ChestPainType':    ChestPainType.split(':')[0],  # keep code part
+    'RestingBP':        RestingBP,
+    'Cholesterol':      Cholesterol,
+    'FastingBS':        1 if FastingBS == 'Yes' else 0,
+    'RestingECG':       RestingECG,
+    'MaxHR':            MaxHR,
+    'ExerciseAngina':   ExerciseAngina,
+    'Oldpeak':          Oldpeak,
+    'ST_Slope':         ST_Slope
+}])
 
 
 def predict_heart_failure(df):
     prediction = model.predict(df)
     prediction_prob = model.predict_proba(df)  
     return prediction, prediction_prob
-prediction,prediction_prob = predict_heart_failure(df)
+
+prediction,prediction_prob = predict_heart_failure(input_df)
 
 no_patient = str((prediction_prob[0,0])*100)[:5] + '%'
 patient = str((prediction_prob[0,1])*100)[:5] + '%'
 
-if b:
+if submitted:
  with st.sidebar:
     st.markdown(
     """
@@ -135,18 +107,16 @@ if b:
        co1 , co2 = st.columns(2)
        with co1:
           st.image('https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExbWU2eXR0aHo0bHd3NmFtbDRiZzZwOW80c21iazJ3bXdpY2tpbDZxaiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/1Bd7DmRvbhV5UPkoDw/giphy.gif'
-                 ,use_container_width =True)
+                 ,use_column_width =True)
           st.write(f"# Prediction Probability: {patient}")
           st.subheader(":red[*Heart Patient*]")
 
        with co2:
             st.image('https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExd3d5aHB3eW1leDgxMG5wNG4zM3hhZXhpbm5mYWJtOWkzNWpoamZsMCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/yeUxljCJjH1rW/giphy.gif'
-                     ,use_container_width =True)
+                     ,use_column_width =True)
             st.write(f"# Prediction Probability: {no_patient}")
             st.subheader(":green[*No Heart Patient*]")
 
-          
-             
     if prediction == 1:  
         st.markdown(
                       """
