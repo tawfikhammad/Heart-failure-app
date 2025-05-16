@@ -6,7 +6,7 @@ import streamlit as st
 def load_model(path: str):
     return joblib.load(path)
 
-model = load_model('rf_pipeline.sav')
+model = load_model('models/rf_pipeline.sav')
 
 st.set_page_config(page_title="Heart Failure Prediction",page_icon='🚨')
 
